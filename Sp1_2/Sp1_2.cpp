@@ -1,149 +1,80 @@
 ﻿#include "pch.h"
-void AnsiUnicode(LPCTSTR szSourceFile, LPCTSTR szDestFile);
-void UnicodeAnsi(LPCTSTR szSourceFile, LPCTSTR szDestFile);
-LPWSTR ANSIToUnicode(char* src);
-LPSTR UnicodeToANSI(LPCWSTR src);
+
+void UnicodeAnsi(LPCTSTR source, LPCTSTR destination);
+void AnsiUnicode(LPCTSTR source, LPCTSTR destination);
 
 int main(int argc, TCHAR* argv[])
 {
-	if (argc == 1)
+	INT numberOfArguments = argc;
+	TCHAR argument;
+	if (numberOfArguments == 1)
 	{
-		printf("No arguments");
+		printf("No arguments!\n");
 		return 0;
 	}
-	switch (*argv[1])
-	{
-	case 'a':
-	{
+	argument = *argv[1];
+	if (argument == 'a') {
+		LPCTSTR _sourceFileName = (LPCTSTR)argv[2];
+		LPCTSTR _destinationFileName = (LPCTSTR)argv[3];
+		printf((const char*)_sourceFileName);
+		printf((const char*)_destinationFileName);
+		UnicodeAnsi(_sourceFileName, _destinationFileName);
+	}
+	else if (argument == 'u') {
 		LPCTSTR _sourceFileName = (LPCTSTR)argv[2];
 		LPCTSTR _destinationFileName = (LPCTSTR)argv[3];
 		printf((const char*)_sourceFileName);
 		printf((const char*)_destinationFileName);
 		AnsiUnicode(_sourceFileName, _destinationFileName);
-		break;
 	}
-	case 'u':
-	{
-		LPCTSTR _sourceFileName = (LPCTSTR)argv[2];
-		LPCTSTR _destinationFileName = (LPCTSTR)argv[3];
-		UnicodeAnsi(_sourceFileName, _destinationFileName);
-		break;
-	}
-	default:
-		printf("\nInvalid arguments!");
-		break;
-	}
-	return 0;
+	else printf("Invalid argument");
 }
 
-void AnsiUnicode(LPCTSTR szSourceFile, LPCTSTR szDestFile)
+void UnicodeAnsi(LPCTSTR source, LPCTSTR destination)
 {
-	HANDLE hFile;
-	if (!(hFile = CreateFile(szSourceFile, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL)))
-	{
-		return;
+	HANDLE file;
+	HANDLE fileDestination;
+	file = CreateFile(source, GENERIC_READ, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	fileDestination = CreateFile(destination, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (file == INVALID_HANDLE_VALUE) return;
+	if (fileDestination == INVALID_HANDLE_VALUE) return;
+	DWORD sizeOfHandle = GetFileSize(file, NULL);
+	LPWSTR readBuffer = new WCHAR[4];
+	DWORD bytesHaveRead = -1;
+	while (bytesHaveRead != 0) {
+		ReadFile(file, readBuffer, 4, &bytesHaveRead, NULL);
+		int requiredSize = WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK, (LPCWSTR)readBuffer, wcslen(readBuffer), 0, 0, 0, 0);
+		LPSTR result = new CHAR[requiredSize];
+		int returnValue = WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK, (LPCWSTR)readBuffer, wcslen(readBuffer), result, requiredSize, 0, 0);
+		DWORD bytesToWrite = strlen(result) * sizeof(CHAR);
+		DWORD bytesWritten;
+		WriteFile(fileDestination, result, bytesToWrite, &bytesWritten, NULL);
 	}
-	DWORD dwFileSize = GetFileSize(hFile, NULL);
-	DWORD dwBytesRead;
-	CHAR* szBuf = new CHAR[dwFileSize + 1]; szBuf[dwFileSize] = '\0';
-	ReadFile(hFile, szBuf, dwFileSize, &dwBytesRead, NULL);
-	CloseHandle(hFile);
-
-	if (!(hFile = CreateFile(szDestFile, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)))
-	{
-		return;
-	}
-	WCHAR* szBufW = ANSIToUnicode(szBuf);
-	DWORD dwBytesToWrite = lstrlenW(szBufW) * sizeof(WCHAR);
-	DWORD dwBytesWritten;
-	WriteFile(hFile, szBufW, dwBytesToWrite, &dwBytesWritten, NULL);
-	CloseHandle(hFile);
-	delete[] szBuf;
-}
-void UnicodeAnsi(LPCTSTR szSourceFile, LPCTSTR szDestFile)
-{
-	HANDLE hFile;
-	if (!(hFile = CreateFile(szSourceFile, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL)))
-	{
-		return;
-	}
-	DWORD dwFileSize = GetFileSize(hFile, NULL);
-	DWORD dwBytesRead;
-	WCHAR* szBufW = new WCHAR[dwFileSize / sizeof(WCHAR) + 1]; szBufW[dwFileSize / sizeof(WCHAR)] = 0;
-	ReadFile(hFile, szBufW, dwFileSize, &dwBytesRead, NULL);
-	CloseHandle(hFile);
-
-	if (!(hFile = CreateFile(szDestFile, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)))
-	{
-		return;
-	}
-	CHAR* szBuf = UnicodeToANSI(szBufW);
-	DWORD dwBytesToWrite = strlen(szBuf);
-	DWORD dwBytesWritten;
-	WriteFile(hFile, szBuf, dwBytesToWrite, &dwBytesWritten, NULL);
-	CloseHandle(hFile);
-	delete[] szBuf;
+	CloseHandle(file);
+	CloseHandle(fileDestination);
 }
 
-LPWSTR ANSIToUnicode(char* src)
+void AnsiUnicode(LPCTSTR source, LPCTSTR destination)
 {
-	if (!src) return 0;
-	int srcLen = strlen(src);
-	if (!srcLen)
+	HANDLE file;
+	HANDLE fileDestination;
+	file = CreateFile(source, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	fileDestination = CreateFile(destination, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (file == INVALID_HANDLE_VALUE) return;
+	if (fileDestination == INVALID_HANDLE_VALUE) return;
+	DWORD sizeOfHandle = GetFileSize(file, NULL);
+	LPSTR readBuffer = new CHAR[4];
+	DWORD bytesHaveRead = -1;
+	while (bytesHaveRead != 0)
 	{
-		wchar_t* w = new wchar_t[1];
-		w[0] = 0;
-		return w;
+		ReadFile(file, readBuffer, 4, &bytesHaveRead, NULL);
+		int requiredSize = MultiByteToWideChar(CP_ACP, 0, readBuffer, strlen(readBuffer), 0, 0);
+		LPWSTR result = new WCHAR[requiredSize];
+		int returnValue = MultiByteToWideChar(CP_ACP, 0, readBuffer, strlen(readBuffer), result, requiredSize);
+		DWORD bytesToWrite = wcslen(result) * sizeof(WCHAR);
+		DWORD bytesWritten;
+		WriteFile(fileDestination, result, bytesToWrite, &bytesWritten, NULL);
 	}
-
-	int requiredSize = MultiByteToWideChar(GetACP(), 0, src, srcLen, 0, 0);
-
-	if (!requiredSize)
-	{
-		return 0;
-	}
-
-	wchar_t* w = new wchar_t[requiredSize + 1];
-	w[requiredSize] = 0;
-
-	int retval = MultiByteToWideChar(GetACP(), 0, src, srcLen, w, requiredSize);
-	if (!retval)
-	{
-		delete[] w;
-		return 0;
-	}
-
-	return w;
-}
-
-LPSTR UnicodeToANSI(LPCWSTR src)
-{
-	if (!src) return 0;
-	int srcLen = wcslen(src);
-	if (!srcLen)
-	{
-		char* x = new char[1];
-		x[0] = '\0';
-		return x;
-	}
-
-	int requiredSize = WideCharToMultiByte(GetACP(), WC_COMPOSITECHECK, src, srcLen, 0, 0, 0, 0);
-
-	if (!requiredSize)
-	{
-		return 0;
-	}
-
-	char* x = new char[requiredSize + 1];
-	x[requiredSize] = 0;
-
-	int retval = WideCharToMultiByte(GetACP(), WC_COMPOSITECHECK, src, srcLen, x, requiredSize, 0, 0);
-
-	if (!retval)
-	{
-		delete[] x;
-		return 0;
-	}
-
-	return x;
+	CloseHandle(file);
+	CloseHandle(fileDestination);
 }
