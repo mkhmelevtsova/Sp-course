@@ -32,7 +32,7 @@ int main(int argc, LPTSTR argv[])
 		case 6: deleteFile(workDir); break;
 		case 7: return 0; break;
 		default:
-			puts("Некоррентная комманда!"); break;
+			puts("Wrong command!"); break;
 		}
 	}
 }
