@@ -1,0 +1,6 @@
+﻿  SPLAB3_REGISTRY.cpp
+E:\XAI_notes\3\3.2\SP\Laboratory works\Laboratory work 3\SPLAB3_REGISTRY\SPLAB3_REGISTRY\SPLAB3_REGISTRY.cpp(162,13): warning C4101: 'subkeyResultCode': unreferenced local variable
+E:\XAI_notes\3\3.2\SP\Laboratory works\Laboratory work 3\SPLAB3_REGISTRY\SPLAB3_REGISTRY\SPLAB3_REGISTRY.cpp(93): warning C4715: 'PrintSubkeysList': not all control paths return a value
+E:\XAI_notes\3\3.2\SP\Laboratory works\Laboratory work 3\SPLAB3_REGISTRY\SPLAB3_REGISTRY\SPLAB3_REGISTRY.cpp(178): warning C4715: 'SearchString': not all control paths return a value
+E:\XAI_notes\3\3.2\SP\Laboratory works\Laboratory work 3\SPLAB3_REGISTRY\SPLAB3_REGISTRY\SPLAB3_REGISTRY.cpp(156): warning C4715: 'PrintKeyParametres': not all control paths return a value
+  SPLAB3_REGISTRY.vcxproj -> E:\XAI_notes\3\3.2\SP\Laboratory works\Laboratory work 3\SPLAB3_REGISTRY\Debug\SPLAB3_REGISTRY.exe
