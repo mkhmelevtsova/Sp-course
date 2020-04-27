@@ -8,8 +8,8 @@ struct INTArray
 
 DWORD tlsIndex;
 
-INTArray* randomArray(DWORD arrSize);
-DWORD WINAPI ThreadFunction(LPVOID arrayParameter);
+INTArray* CreateRandomArray(DWORD arrSize);
+DWORD WINAPI ThreadExecutableFunc(LPVOID arrayParameter);
 void FunctionXorToArray();
 INT FunctionSumToArray();
 
@@ -21,7 +21,7 @@ int main()
     _tprintf(L"Input number of threads: ");
     _tscanf(L"%i", &numberOfThreads);
     threads = new HANDLE[numberOfThreads];
-    for (int i = 0; i < numberOfThreads; i++) threads[i] = CreateThread(NULL, 0, ThreadFunction, (LPVOID)randomArray(5 + rand() % 6), 0, NULL);
+    for (int i = 0; i < numberOfThreads; i++) threads[i] = CreateThread(NULL, 0, ThreadExecutableFunc, (LPVOID)CreateRandomArray(5 + rand() % 6), 0, NULL);
     WaitForMultipleObjects((DWORD)numberOfThreads, threads, TRUE, INFINITE);
     for (int i = 0; i < numberOfThreads; i++) CloseHandle(threads[i]);
     delete[] threads;
@@ -29,7 +29,7 @@ int main()
     return 0;
 }
 
-DWORD WINAPI ThreadFunction(LPVOID arrayParameter) 
+DWORD WINAPI ThreadExecutableFunc(LPVOID arrayParameter) 
 {
     INTArray* arrayPointer = (INTArray*)arrayParameter;
     TlsSetValue(tlsIndex, arrayParameter);
@@ -39,7 +39,7 @@ DWORD WINAPI ThreadFunction(LPVOID arrayParameter)
     return 0;
 }
 
-INTArray* randomArray(DWORD arrSize)
+INTArray* CreateRandomArray(DWORD arrSize)
 {
     INTArray* arr = new INTArray;
     arr->arrayLenght = arrSize;

@@ -11,8 +11,8 @@ void printErrorMessage();
 int main()
 {
 	INT operation;
-	TCHAR path1[MAX_PATH];
-	TCHAR path2[MAX_PATH];
+	TCHAR InputPath[MAX_PATH];
+	TCHAR OutputPath[MAX_PATH];
 	while (true)
 	{
 		_tprintf(L"Archiver\n");
@@ -27,17 +27,17 @@ int main()
 			return 0;
 		case 1:
 			_tprintf(L"Path to an archive: ");
-			readline(path1, MAX_PATH);
+			readline(InputPath, MAX_PATH);
 			_tprintf(L"Eject into: ");
-			readline(path2, MAX_PATH);
-			extract(path1, path2);
+			readline(OutputPath, MAX_PATH);
+			extract(InputPath, OutputPath);
 			break;
 		case 2:
 			_tprintf(L"Path to folder of file you want to archive: ");
-			readline(path1, MAX_PATH);
+			readline(InputPath, MAX_PATH);
 			_tprintf(L"Path to archive: ");
-			readline(path2, MAX_PATH);
-			archive(path1, path2);
+			readline(OutputPath, MAX_PATH);
+			archive(InputPath, OutputPath);
 			break;
 		default:
 			_tprintf(L"There are not such a command!\n");
@@ -62,85 +62,76 @@ void readline(TCHAR szBuffer[], DWORD nBufferSize)
 
 void archive(LPCTSTR lpPathName, LPCTSTR lpOutArchivePath)
 {
-	try {
-		INT iMaxLen = lstrlen(lpPathName) + lstrlen(lpOutArchivePath) +
-			lstrlen(ARCHIVER_PATH) + 50;
-		wchar_t* buf = new wchar_t[iMaxLen];
-		_stprintf(buf, TEXT("\"%s\" a \"%s\" \"%s\" -y"), ARCHIVER_PATH,
-			lpOutArchivePath, lpPathName);
-		execute(buf);
-		return;
-	}
-	catch (...) {}
+	INT iMaxLen = lstrlen(lpPathName) + lstrlen(lpOutArchivePath) +
+		lstrlen(ARCHIVER_PATH) + 50;
+	wchar_t* buf = new wchar_t[iMaxLen];
+	_stprintf(buf, TEXT("\"%s\" a \"%s\" \"%s\" -y"), ARCHIVER_PATH,
+		lpOutArchivePath, lpPathName);
+	execute(buf);
+	return;
 }
 void extract(LPCTSTR lpArchivePath, LPCTSTR lpOutPathName)
 {
-	try {
-		INT iMaxLen = lstrlen(lpArchivePath) + lstrlen(lpOutPathName) +
-			lstrlen(ARCHIVER_PATH) + 50;
-		wchar_t* buf = new wchar_t[iMaxLen];
-		swprintf(buf, iMaxLen, L"\"%s\" x \"%s\" -o\"%s\" *.* -r -y", ARCHIVER_PATH,
-			lpArchivePath, lpOutPathName);
-		execute(buf);
-		return;
-	}
-	catch (...) {}
+	INT iMaxLen = lstrlen(lpArchivePath) + lstrlen(lpOutPathName) +
+		lstrlen(ARCHIVER_PATH) + 50;
+	wchar_t* buf = new wchar_t[iMaxLen];
+	swprintf(buf, iMaxLen, L"\"%s\" x \"%s\" -o\"%s\" *.* -r -y", ARCHIVER_PATH,
+		lpArchivePath, lpOutPathName);
+	execute(buf);
+	return;
 }
 void execute(LPTSTR command)
 {
-	try {
-		SECURITY_ATTRIBUTES saAttr;
-		saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
-		saAttr.bInheritHandle = TRUE;
-		saAttr.lpSecurityDescriptor = NULL;
-		HANDLE hReadPipe = NULL;
-		HANDLE hWritePipe = NULL;
-		if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0))
-		{
-			printErrorMessage();
-			return;
-		}
-		if (!SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0))
-		{
-			printErrorMessage();
-			return;
-		}
-		STARTUPINFO si;
-		PROCESS_INFORMATION pi;
-		ZeroMemory(&si, sizeof(STARTUPINFO));
-		si.cb = sizeof(STARTUPINFO);
-		si.hStdError = hWritePipe;
-		si.dwFlags |= STARTF_USESTDHANDLES;
-		ZeroMemory(&pi, sizeof(pi));
-		if (CreateProcess(NULL, command, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi) ==
-			NULL)
-		{
-			printErrorMessage();
-			return;
-		}
-		WaitForSingleObject(pi.hProcess, INFINITE);
-		
-		CloseHandle(hReadPipe);
-		
-		DWORD dwRead;
-		BOOL bSuccess = FALSE;
-		CHAR chRead[1024];
-		bSuccess = ReadFile(hReadPipe, chRead, 1024, &dwRead, NULL);
-		chRead[dwRead] = '\0';
-		if (strstr(chRead, "Ошибка") != NULL || strstr(chRead, "WARNING") != NULL)
-		{
-			_tprintf(L"%s", chRead);
-		}
-		else
-		{
-			_tprintf(L"Successfull!\n");
-		}
-		CloseHandle(hWritePipe);
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
+	SECURITY_ATTRIBUTES saAttr;
+	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+	saAttr.bInheritHandle = TRUE;
+	saAttr.lpSecurityDescriptor = NULL;
+	HANDLE hReadPipe = NULL;
+	HANDLE hWritePipe = NULL;
+	if (!CreatePipe(&hReadPipe, &hWritePipe, &saAttr, 0))
+	{
+		printErrorMessage();
 		return;
 	}
-	catch (...) {}
+	if (!SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0))
+	{
+		printErrorMessage();
+		return;
+	}
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+	ZeroMemory(&si, sizeof(STARTUPINFO));
+	si.cb = sizeof(STARTUPINFO);
+	si.hStdError = hWritePipe;
+	si.dwFlags |= STARTF_USESTDHANDLES;
+	ZeroMemory(&pi, sizeof(pi));
+	if (CreateProcess(NULL, command, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi) ==
+		NULL)
+	{
+		printErrorMessage();
+		return;
+	}
+	WaitForSingleObject(pi.hProcess, INFINITE);
+
+	CloseHandle(hReadPipe);
+
+	DWORD dwRead;
+	BOOL bSuccess = FALSE;
+	CHAR chRead[1024];
+	bSuccess = ReadFile(hReadPipe, chRead, 1024, &dwRead, NULL);
+	chRead[dwRead] = '\0';
+	if (strstr(chRead, "Ошибка") != NULL || strstr(chRead, "WARNING") != NULL)
+	{
+		_tprintf(L"%s", chRead);
+	}
+	else
+	{
+		_tprintf(L"Successfull!\n");
+	}
+	CloseHandle(hWritePipe);
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+	return;
 }
 void printErrorMessage()
 {
