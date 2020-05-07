@@ -9,9 +9,7 @@
 
 // add headers that you want to pre-compile here
 #include <stdio.h>
-#include <stdlib.h>
-#include <tchar.h>
-#include <time.h>
 #include <Windows.h>
+#include <tchar.h>
 
 #endif //PCH_H

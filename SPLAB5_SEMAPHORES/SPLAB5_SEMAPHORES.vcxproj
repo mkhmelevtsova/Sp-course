@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{744F9229-3B44-404F-909B-1D92825113C8}</ProjectGuid>
+    <ProjectGuid>{51BCD129-0D92-4DA5-B89E-8C98F64BE947}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>SPLAB4THREADS</RootNamespace>
+    <RootNamespace>SPLAB5SEMAPHORES</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -30,7 +30,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -153,7 +153,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SPLAB4_THREADS.cpp" />
+    <ClCompile Include="SPLAB5_SEMAPHORES.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
