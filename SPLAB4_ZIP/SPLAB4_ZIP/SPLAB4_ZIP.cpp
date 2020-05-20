@@ -1,6 +1,9 @@
 #include "pch.h"
 
 const TCHAR ARCHIVER_PATH[] = L"C:\\Program Files (x86)\\7-Zip\\7z.exe";
+const int _eject = 1;
+const int _archive = 2;
+const int _exit = 0;
 
 void readline(TCHAR szBuffer[], DWORD nBufferSize);
 void archive(LPCTSTR lpPathName, LPCTSTR lpOutArchivePath);
@@ -16,23 +19,23 @@ int main()
 	while (true)
 	{
 		_tprintf(L"Archiver\n");
-		_tprintf(L"1. Eject.\n");
-		_tprintf(L"2. Archive.\n");
-		_tprintf(L"0. Exit.\n");
+		_tprintf(L"%i. Eject.\n",_eject);
+		_tprintf(L"%i. Archive.\n",_archive);
+		_tprintf(L"%i. Exit.\n",_exit);
 		_tprintf(L">> ");
 		_tscanf(L"%d", &operation);
 		switch (operation)
 		{
-		case 0:
+		case _exit:
 			return 0;
-		case 1:
+		case _eject:
 			_tprintf(L"Path to an archive: ");
 			readline(InputPath, MAX_PATH);
 			_tprintf(L"Eject into: ");
 			readline(OutputPath, MAX_PATH);
 			extract(InputPath, OutputPath);
 			break;
-		case 2:
+		case _archive:
 			_tprintf(L"Path to folder of file you want to archive: ");
 			readline(InputPath, MAX_PATH);
 			_tprintf(L"Path to archive: ");
